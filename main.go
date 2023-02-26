@@ -2,16 +2,20 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/tlpazmt/goProject/api/controllers"
+	"github.com/tlpazmt/goProject/initializers"
 )
+
+func init() {
+	initializers.LoadEnvVariables()
+	initializers.ConnectToDb()
+	initializers.SyncDatabase()
+}
 
 func main() {
 	r := gin.Default()
 
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "Hello, world!",
-		})
-	})
+	r.POST("/signup", controllers.Signup)
 
 	r.Run()
 }
