@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/tlpazmt/goProject/api/controllers"
+	"github.com/tlpazmt/goProject/api/middlewares"
 	"github.com/tlpazmt/goProject/initializers"
 )
 
@@ -17,6 +18,7 @@ func main() {
 
 	r.POST("/signup", controllers.Signup)
 	r.POST("/login", controllers.Login)
+	r.GET("/validate", middlewares.Auth, controllers.Validate)
 
 	r.Run()
 }
