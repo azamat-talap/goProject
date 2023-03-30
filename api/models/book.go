@@ -13,4 +13,5 @@ type Book struct {
 	Page        int
 	Year        int
 	Active      bool
+	Rating      float64
 }
