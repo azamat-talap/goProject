@@ -61,3 +61,26 @@ func SetBookRating(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"data": rating})
 }
+
+func CreateComment(c *gin.Context) {
+	var comment models.Comment
+	if err := c.ShouldBindJSON(&comment); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	bookID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book id"})
+		return
+	}
+
+	comment.BookID = uint(bookID)
+
+	if err := initializers.DB.Create(&comment).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"data": comment})
+}
