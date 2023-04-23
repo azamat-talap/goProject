@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"github.com/tlpazmt/goProject/api/models"
 	"github.com/tlpazmt/goProject/initializers"
 )
@@ -83,4 +86,43 @@ func CreateComment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"data": comment})
+}
+
+func CreateBook(c *gin.Context) {
+	var book models.Book
+	err := c.ShouldBindJSON(&book)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	cookie, err := c.Cookie("Authorization")
+	book.UserID, err = getUserIDFromToken(cookie)
+	book.Active = true
+
+	result := initializers.DB.Create(&book)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": book})
+}
+
+func getUserIDFromToken(tokenString string) (int, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Token error")
+		}
+
+		return []byte(os.Getenv("SECRET")), nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	userID := token.Claims.(jwt.MapClaims)["sub"].(float64)
+
+	return int(userID), nil
 }

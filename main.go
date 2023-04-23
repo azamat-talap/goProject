@@ -19,6 +19,7 @@ func main() {
 	r.POST("/signup", controllers.Signup)
 	r.POST("/login", controllers.Login)
 	r.GET("/books", middlewares.Auth, controllers.GetBooks)
+	r.POST("/books", middlewares.Auth, controllers.CreateBook)
 	r.POST("books/:id/rating", middlewares.Auth, controllers.SetBookRating)
 	r.POST("books/:id/comment", middlewares.Auth, controllers.CreateComment)
 
