@@ -109,6 +109,32 @@ func CreateBook(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": book})
 }
 
+func PurchaseBook(c *gin.Context) {
+	var purchase models.Purchase
+	if err := c.ShouldBindJSON(&purchase); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	bookID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book id"})
+		return
+	}
+
+	cookie, err := c.Cookie("Authorization")
+	purchase.UserID, err = getUserIDFromToken(cookie)
+
+	purchase.BookID = uint(bookID)
+
+	if err := initializers.DB.Create(&purchase).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"data": purchase})
+}
+
 func getUserIDFromToken(tokenString string) (int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

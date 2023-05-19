@@ -8,5 +8,6 @@ func SyncDatabase() {
 	DB.AutoMigrate(&models.Rating{})
 	DB.AutoMigrate(&models.Comment{})
 	DB.AutoMigrate(&models.Role{})
+	DB.AutoMigrate(&models.Purchase{})
 	models.SeedRoles(DB)
 }
